@@ -11,8 +11,8 @@ class VAO {
 		//Constructor
 		VAO();
 
-		//Links vertex buffer object to vertex array object
-		void LinkVBO(VBO VBO, GLuint layout);
+		//Links vertex buffer object to vertex array attribute
+		void LinkAttrib(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
 		//Binds vertex array object
 		void Bind();
 		//Unbinds vertex array object
