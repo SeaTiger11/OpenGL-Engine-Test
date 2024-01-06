@@ -7,17 +7,17 @@ EBO::EBO(GLuint* indices, GLsizeiptr size) {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
 }
 
-//Binds edge buffer object
+//Binds edge buffer
 void EBO::Bind() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
 }
 
-//Unbinds edge buffer object
+//Unbinds edge buffer
 void EBO::Unbind() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-//Deletes edge buffer object
+//Deletes edge buffer
 void EBO::Delete() {
 	glDeleteBuffers(1, &ID);
 }

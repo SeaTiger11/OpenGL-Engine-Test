@@ -137,6 +137,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="shaderClass.cpp" />
     <ClCompile Include="stb.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
@@ -147,11 +148,12 @@
   <ItemGroup>
     <ClInclude Include="EBO.h" />
     <ClInclude Include="shaderClass.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\titanfall2.png" />
+    <Image Include="rainbow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,11 +10,11 @@ class EBO {
 		//Constructor
 		EBO(GLuint* indices, GLsizeiptr size);
 
-		//Binds edge buffer object
+		//Binds edge buffer
 		void Bind();
-		//Unbinds edge buffer object
+		//Unbinds edge buffer
 		void Unbind();
-		//Deletes edge buffer object
+		//Deletes edge buffer
 		void Delete();
 };
 

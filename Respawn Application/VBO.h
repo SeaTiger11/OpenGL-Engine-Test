@@ -10,11 +10,11 @@ class VBO {
 		//Constructor
 		VBO(GLfloat* vertices, GLsizeiptr size);
 
-		//Binds vertex buffer object
+		//Binds vertex buffer
 		void Bind();
-		//Unbinds vertex buffer object
+		//Unbinds vertex buffer
 		void Unbind();
-		//Deletes vertex buffer object
+		//Deletes vertex buffer
 		void Delete();
 };
 

@@ -7,11 +7,13 @@ in vec3 colour;
 //Inputs texture coordinate from the vertex shader
 in vec2 texCord;
 
-uniform sampler2D tex0;
+//Uniform texture variable
+uniform sampler2D tex;
 
 void main() {
 	//Sets the fragment colour based on the input with a constant alpha of 1
 	//FragColour = vec4(colour, 1.0f);
 	
-	FragColour = texture(tex0, texCord);
+	//Sets fragment colour based off the texture and the texture coordinate 
+	FragColour = texture(tex, texCord);
 }

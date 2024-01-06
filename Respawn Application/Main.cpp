@@ -2,12 +2,19 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shaderClass.h"
 #include "VAO.h"
 #include "VBO.H"
 #include "EBO.h"
+#include "Texture.h"
 
+const unsigned int width = 800, height = 800;
+
+//GLFW error logger
 static void glfwError(int id, const char* description)
 {
 	std::cout << description << std::endl;
@@ -25,20 +32,25 @@ int main() {
 
 	//Array of vertices 
 	//3 numbers for the position, 3 numbers for the rgb colours, 2 numbers for the texture cords)
-	GLfloat vertices[] = {
-		-0.5f, -0.5f, 0.0f,	 1, 0, 0,	 0, 0, //Bottom left
-		-0.5f, 0.5f, 0.0f,	 0, 1, 0,	 0, 1, //Top left
-		0.5f, 0.5f, 0.0f,	 0, 0, 1,	 1, 1, //Bottom right
-		0.5f, -0.5f, 0.0f,	 0, 0, 0,	 1, 0 //Top right
+	GLfloat vertices[] = { //Currently configured as a pyramid
+		-0.5f, 0.0f, 0.5f,		1, 0, 0,	 0.0f, 0.0f,
+		-0.5f, 0.0f, -0.5f,		1, 0, 0,	 1.0f, 0.0f,
+		0.5f, 0.0f, -0.5f,		1, 0, 0,	 0.0f, 0.0f,
+		0.5f, 0.0f, 0.5f,		1, 0, 0,	 1.0f, 0.0f,
+		0.0f, 0.8f, 0.0f,		1, 0, 0,	 0.5f, 1.0f,
 	};
 
 	GLuint indices[] = {
-		0, 2, 1, //Upper triangle
-		0, 3, 2 //Lower triangle
+		0, 1, 2,
+		0, 2, 3,
+		0, 1, 4,
+		1, 2, 4,
+		2, 3, 4,
+		3, 0, 4
 	};
 
 	//Creating the window and then checking the process didn't fail
-	GLFWwindow* window = glfwCreateWindow(800, 800, "Demo Game", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(width, height, "Demo Game", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Window creation failed" << std::endl;
 		glfwTerminate();
@@ -51,7 +63,7 @@ int main() {
 	gladLoadGL();
 
 	//Set openGL viewport
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, width, height);
 
 	//Creates shader object with default.vert and default.frag shaders
 	Shader shaderProgram("default.vert", "default.frag");
@@ -76,64 +88,62 @@ int main() {
 	//Gets the scale variable ID in the vertex shader
 	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
 
-	//Variables for image properties to be stored
-	int imgWidth, imgHeight, numColourChannels;
-	//By default stb loads image differently to openGL resulting in flipped image
-	stbi_set_flip_vertically_on_load(true);
-	//Turns image into byte array and updates image property variables
-	unsigned char* imgBytes = stbi_load("titanfall2.png", &imgWidth, &imgHeight, &numColourChannels, 0); //Get image bytes
+	//Generates texture
+	Texture rainbow("rainbow.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	rainbow.TexUnit(shaderProgram, "tex", 0);
 
-	//Generates a 2D texture
-	GLuint texture;
-	glGenTextures(1, &texture);
-	//Assigns texture to texture unit
-	glActiveTexture(GL_TEXTURE0);
-	//Binds texture
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//Variables to assist with rotating the pyramid
+	float rotation = 0.0f;
+	double prevTime = glfwGetTime();
 
-	//Interpolates new pixels when scaling (may make image a bit blurry)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	//Makes image not repeat and instead simply have a border colour
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	//Generates a colour then sets it as the border colour for the texture
-	float flatColour[] = { 1, 1, 1, 1 };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColour);
-
-	//Sets the texture data to the previously created image bytes
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imgWidth, imgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgBytes);
-	//Generates image mipmaps (smaller versions of the same image)
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	//Delete the image bytes
-	stbi_image_free(imgBytes);
-	//Unbind the texture to prevent accidental modifications
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	//Gets the texture variable ID in the vertex shader
-	GLuint tex0Uni = glGetUniformLocation(shaderProgram.ID, "tex0");
-	shaderProgram.Activate();
-	glUniform1i(tex0Uni, 0);
+	//Enables depth buffer
+	glEnable(GL_DEPTH_TEST);
 
 	//Main game loop
-	while (!glfwWindowShouldClose(window)) 
+	while (!glfwWindowShouldClose(window))
 	{
 		//Configure background colour
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		//Set background colour to back buffer
-		glClear(GL_COLOR_BUFFER_BIT);
+		//Clear the colour and depth buffer of the back buffer, then set the new background colour
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//Tell openGL what shaders to use
 		shaderProgram.Activate();
+
+		//Simple timer to assist with rotation
+		double crntTime = glfwGetTime();
+		if (crntTime - prevTime >= 1 / 60) {
+			rotation += 0.1f;
+			prevTime = crntTime;
+		}
+
+		//Initialize matrices to prevent them being NULL 
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+
+		//Rotate model over time
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
+		//Offset the view position
+		view = glm::translate(view, glm::vec3(0, -0.5f, -5.0f));
+		//Set the view frustum
+		proj = glm::perspective(glm::radians(45.0f), float(width / height), 0.1f, 100.0f);
+
+		//Updates the vertex shader uniforms to include the matrices required for 3D
+		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+
 		//Sets the scale of the vertex shader
 		glUniform1f(uniID, 1.5f);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		rainbow.Bind();
 		//Bind the vertex array so openGL knows to use it
 		VAO1.Bind();
 		//Draw all the triangles
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 		//Swap the back and front buffers
 		glfwSwapBuffers(window);
 
@@ -145,7 +155,7 @@ int main() {
 	VAO1.Delete();
 	VBO1.Delete();
 	EBO1.Delete();
-	glDeleteTextures(1, &texture);
+	rainbow.Delete();
 	shaderProgram.Delete();
 
 	//Destroy window then terminate glfw

@@ -9,12 +9,17 @@ out vec3 colour;
 //Outputs the texure coordinate for the fragment shader to use
 out vec2 texCord;
 
-//Uniform scale variable that is used for all vertices
+//Uniform scale variable
 uniform float scale;
+
+//Uniform matrices required for 3D
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
 
 void main() {
 	//Sets the vertex position based on the vertex data and the uniform scale variable
-	gl_Position = vec4(aPos.x * scale, aPos.y * scale, aPos.z * scale, 1.0);
+	gl_Position = proj * view * model * vec4(aPos, 1.0);
 	//Sets the colour variable from the vertex data
 	colour = aColour;
 	//Sets the texture coordinate from the vertex data
