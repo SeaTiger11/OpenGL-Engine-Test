@@ -1,2 +1,4 @@
-﻿  Main.cpp
+﻿  Camera.cpp
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Camera.cpp(76,7): warning C4804: '<=': unsafe use of type 'bool' in operation
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Camera.cpp(76,64): warning C4804: '<=': unsafe use of type 'bool' in operation
   Respawn Application.vcxproj -> C:\Users\svmis\source\repos\Respawn-Application\x64\Debug\Respawn Application.exe

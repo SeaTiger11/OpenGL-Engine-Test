@@ -5,12 +5,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <chrono>
 
 #include "shaderClass.h"
 #include "VAO.h"
 #include "VBO.H"
 #include "EBO.h"
 #include "Texture.h"
+#include "Camera.h"
 
 const unsigned int width = 800, height = 800;
 
@@ -85,20 +87,17 @@ int main() {
 	VBO1.Unbind();
 	EBO1.Unbind();
 
-	//Gets the scale variable ID in the vertex shader
-	GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
-
 	//Generates texture
 	Texture rainbow("rainbow.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
 	rainbow.TexUnit(shaderProgram, "tex", 0);
 
-	//Variables to assist with rotating the pyramid
-	float rotation = 0.0f;
-	double prevTime = glfwGetTime();
-
 	//Enables depth buffer
 	glEnable(GL_DEPTH_TEST);
 
+	//Creates camera object
+	Camera camera(width, height, glm::vec3(0.0f, 0.5f, 2.0f));
+
+	std::chrono::steady_clock::time_point lastUpdate;
 	//Main game loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -109,36 +108,17 @@ int main() {
 		//Tell openGL what shaders to use
 		shaderProgram.Activate();
 
-		//Simple timer to assist with rotation
-		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1 / 60) {
-			rotation += 0.1f;
-			prevTime = crntTime;
-		}
+		//Gets delta time to ensure that inputs aren't frame rate dependant
+		auto now = std::chrono::steady_clock::now();
+		float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - lastUpdate).count() / 1000000.0f;
+		lastUpdate = now;
 
-		//Initialize matrices to prevent them being NULL 
-		glm::mat4 model = glm::mat4(1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 proj = glm::mat4(1.0f);
+		//Updates inputs for the camera
+		camera.Inputs(window, deltaTime);
+		//Sets camera position and orientation
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
-		//Rotate model over time
-		model = glm::rotate(model, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-		//Offset the view position
-		view = glm::translate(view, glm::vec3(0, -0.5f, -5.0f));
-		//Set the view frustum
-		proj = glm::perspective(glm::radians(45.0f), float(width / height), 0.1f, 100.0f);
-
-		//Updates the vertex shader uniforms to include the matrices required for 3D
-		int modelLoc = glGetUniformLocation(shaderProgram.ID, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		int viewLoc = glGetUniformLocation(shaderProgram.ID, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		int projLoc = glGetUniformLocation(shaderProgram.ID, "proj");
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
-
-
-		//Sets the scale of the vertex shader
-		glUniform1f(uniID, 1.5f);
+		//Binds the rainbow texture
 		rainbow.Bind();
 		//Bind the vertex array so openGL knows to use it
 		VAO1.Bind();
