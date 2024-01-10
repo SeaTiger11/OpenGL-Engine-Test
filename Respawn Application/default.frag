@@ -7,13 +7,125 @@ in vec3 colour;
 //Inputs texture coordinate from the vertex shader
 in vec2 texCord;
 
-//Uniform texture variable
-uniform sampler2D tex;
+//Inputs the normal from the vertex shader
+in vec3 Normal;
+//Inputs the current position from the vertex shader
+in vec3 crntPos;
+
+//Uniform texture variables
+uniform sampler2D tex0;
+uniform sampler2D tex1;
+
+//Uniform cam position
+uniform vec3 camPos;
+
+struct PointLight {
+	vec4 lightColour;
+	vec3 lightPos;
+	float a;
+	float b;
+	float c;
+};
+
+struct DirectionalLight {
+	vec4 lightColour;
+	vec3 lightDirection;
+};
+
+struct SpotLight {
+	vec4 lightColour;
+	vec3 lightPos;
+	vec3 lightDirection;
+	float innerCone;
+	float outerCone;
+};
+
+const int MAX_POINT_LIGHTS = 2;
+const int MAX_DIRECTIONAL_LIGHTS = 2;
+const int MAX_SPOT_LIGHTS = 2;
+
+uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
+uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+uniform int pointLightCount = 0;
+uniform int directionalLightCount = 0;
+uniform int spotLightCount = 0;
+
+vec4 Point(PointLight pointLight) {
+	//The light attenuation (light drop off)
+	vec3 lightVec = pointLight.lightPos - crntPos;
+	float dist = length(lightVec);
+	float inten = 1.0f / (pointLight.a * dist * dist + pointLight.b * dist + pointLight.c);
+
+	//The diffused lighting
+	vec3 normal = normalize(Normal);
+	vec3 lightDirection = normalize(lightVec);
+	float diffuse = max(dot(normal, lightDirection), 0.0f);
+	
+	//The specular lighting
+	float specularLight = 0.5f;
+	vec3 viewDirection = normalize(camPos - crntPos);
+	vec3 reflectionDirection = reflect(-lightDirection, normal);
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+	float specular = specAmount * specularLight;
+
+	return (texture(tex0, texCord) * diffuse * inten + texture(tex1, texCord).r * specular * inten) * pointLight.lightColour;
+}
+
+vec4 Directional(DirectionalLight directionalLight) {
+	//The diffused lighting
+	vec3 normal = normalize(Normal);
+	vec3 lightDirection = normalize(-directionalLight.lightDirection);
+	float diffuse = max(dot(normal, lightDirection), 0.0f);
+	
+	//The specular lighting
+	float specularLight = 0.5f;
+	vec3 viewDirection = normalize(camPos - crntPos);
+	vec3 reflectionDirection = reflect(-lightDirection, normal);
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+	float specular = specAmount * specularLight;
+
+	return (texture(tex0, texCord) * diffuse + texture(tex1, texCord).r * specular) * directionalLight.lightColour;
+}
+
+vec4 Spot(SpotLight spotLight) {
+	//The diffused lighting
+	vec3 normal = normalize(Normal);
+	vec3 lightDirection = normalize(spotLight.lightPos - crntPos);
+	float diffuse = max(dot(normal, lightDirection), 0.0f);
+	
+	//The specular lighting
+	float specularLight = 0.5f;
+	vec3 viewDirection = normalize(camPos - crntPos);
+	vec3 reflectionDirection = reflect(-lightDirection, normal);
+	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
+	float specular = specAmount * specularLight;
+
+	//The light attenuation (light drop off)
+	float angle = dot(spotLight.lightDirection, -lightDirection);
+	float inten = clamp((angle - spotLight.outerCone) / (spotLight.innerCone - spotLight.outerCone), 0.0f, 1.0f);
+
+	return (texture(tex0, texCord) * diffuse * inten + texture(tex1, texCord).r * specular * inten) * spotLight.lightColour;
+} 
+
 
 void main() {
-	//Sets the fragment colour based on the input with a constant alpha of 1
-	//FragColour = vec4(colour, 1.0f);
-	
-	//Sets fragment colour based off the texture and the texture coordinate 
-	FragColour = texture(tex, texCord);
+	//Ambient lighting
+	float ambient = 0.2f;
+	vec4 totalColour = texture(tex0, texCord) * ambient;
+
+	//Adds the lighting contributions from all the lights in the scene
+	for (int i = 0; i < pointLightCount; i++) {
+		totalColour += Point(pointLights[i]);
+	}
+	for (int i = 0; i < directionalLightCount; i++) {
+		totalColour += Directional(directionalLights[i]);
+	}
+	for (int i = 0; i < spotLightCount; i++) {
+		totalColour += Spot(spotLights[i]);
+	}
+
+	//Sets the output FragColour to the total colour
+	FragColour = totalColour;
 }

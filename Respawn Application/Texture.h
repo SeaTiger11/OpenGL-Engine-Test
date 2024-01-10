@@ -11,8 +11,10 @@ class Texture {
 		//Reference ID
 		GLuint ID;
 		GLenum type;
+		GLuint unit;
+
 		//Constructor
-		Texture(const char* image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
+		Texture(const char* image, GLenum texType, GLuint slot, GLenum format, GLenum pixelType);
 
 		//Sets the texture variable ID in the fragment shader
 		void TexUnit(Shader& shader, const char* uniform, GLuint unit);

@@ -4,18 +4,22 @@
 Camera::Camera(int width, int height, glm::vec3 position) {
 	Camera::width = width;
 	Camera::height = height;
-	Position = position;
+	Camera::position = position;
 }
 
 //Sets camera position and orientation
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, Shader& shader, const char* uniform) {
+void Camera::UpdateMatrix(float FOVdeg, float nearPlane, float farPlane) {
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 proj = glm::mat4(1.0f);
 
-	view = glm::lookAt(Position, Position + Orientation, Up);
+	view = glm::lookAt(position, position + orientation, up);
 	proj = glm::perspective(glm::radians(FOVdeg), float(width / height), nearPlane, farPlane);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(proj * view));
+	cameraMatrix = proj * view;
+}
+
+void Camera::Matrix(Shader& shader, const char* uniform) {
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
 //Updates inputs for the camera
@@ -37,16 +41,16 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
 		//Standard WASD movement with velocity based movement
 		glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {;
-			acceleration += glm::normalize(glm::vec3(Orientation.x, 0, Orientation.z));
+			acceleration += glm::normalize(glm::vec3(orientation.x, 0, orientation.z));
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			acceleration += -glm::normalize(glm::vec3(-Orientation.z, 0, Orientation.x));
+			acceleration += -glm::normalize(glm::vec3(-orientation.z, 0, orientation.x));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-			acceleration += -glm::normalize(glm::vec3(Orientation.x, 0, Orientation.z));
+			acceleration += -glm::normalize(glm::vec3(orientation.x, 0, orientation.z));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-			acceleration += glm::normalize(glm::vec3(-Orientation.z, 0, Orientation.x));
+			acceleration += glm::normalize(glm::vec3(-orientation.z, 0, orientation.x));
 		}
 		//Sprint
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
@@ -59,7 +63,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
 		if (acceleration != glm::vec3(0.0f, 0.0f, 0.0f))
 			velocity += glm::normalize(acceleration) * speed * deltaTime;
 		velocity *= friction;
-		Position += velocity;
+		position += velocity;
 
 		//Gets current mouse position
 		double mouseX, mouseY;
@@ -70,11 +74,11 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
 		float rotY = sensitivity * float(mouseX - (height / 2.0f)) / height;
 
 		//Finds the new camera orientation
-		glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+		glm::vec3 newOrientation = glm::rotate(orientation, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
 
 		//Ensures the new orientation isn't overrotated (prevents backflips/frontflips with the camera) and if not, updates camera angle
-		if (!glm::angle(newOrientation, Up) <= glm::radians(5.0f) || !glm::angle(newOrientation, -Up) <= glm::radians(5.0f)) {
-			Orientation = glm::rotate(newOrientation, glm::radians(-rotY), Up);
+		if (!glm::angle(newOrientation, up) <= glm::radians(5.0f) || !glm::angle(newOrientation, -up) <= glm::radians(5.0f)) {
+			orientation = glm::rotate(newOrientation, glm::radians(-rotY), up);
 		}
 
 		//Resetting the mouse to the center of the screen
