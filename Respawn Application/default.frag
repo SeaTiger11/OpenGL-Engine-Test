@@ -1,20 +1,18 @@
 #version 330 core
 out vec4 FragColour;
 
+//Inputs the current position from the vertex shader
+in vec3 crntPos;
+//Inputs the normal from the vertex shader
+in vec3 Normal;
 //Inputs colour from the vertex shader
 in vec3 colour;
-
 //Inputs texture coordinate from the vertex shader
 in vec2 texCord;
 
-//Inputs the normal from the vertex shader
-in vec3 Normal;
-//Inputs the current position from the vertex shader
-in vec3 crntPos;
-
 //Uniform texture variables
-uniform sampler2D tex0;
-uniform sampler2D tex1;
+uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 //Uniform cam position
 uniform vec3 camPos;
@@ -70,7 +68,7 @@ vec4 Point(PointLight pointLight) {
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(tex0, texCord) * diffuse * inten + texture(tex1, texCord).r * specular * inten) * pointLight.lightColour;
+	return (texture(diffuse0, texCord) * diffuse * inten + texture(specular0, texCord).r * specular * inten) * pointLight.lightColour;
 }
 
 vec4 Directional(DirectionalLight directionalLight) {
@@ -86,7 +84,7 @@ vec4 Directional(DirectionalLight directionalLight) {
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(tex0, texCord) * diffuse + texture(tex1, texCord).r * specular) * directionalLight.lightColour;
+	return (texture(diffuse0, texCord) * diffuse + texture(specular0, texCord).r * specular) * directionalLight.lightColour;
 }
 
 vec4 Spot(SpotLight spotLight) {
@@ -106,14 +104,14 @@ vec4 Spot(SpotLight spotLight) {
 	float angle = dot(spotLight.lightDirection, -lightDirection);
 	float inten = clamp((angle - spotLight.outerCone) / (spotLight.innerCone - spotLight.outerCone), 0.0f, 1.0f);
 
-	return (texture(tex0, texCord) * diffuse * inten + texture(tex1, texCord).r * specular * inten) * spotLight.lightColour;
+	return (texture(diffuse0, texCord) * diffuse * inten + texture(specular0, texCord).r * specular * inten) * spotLight.lightColour;
 } 
 
 
 void main() {
 	//Ambient lighting
 	float ambient = 0.2f;
-	vec4 totalColour = texture(tex0, texCord) * ambient;
+	vec4 totalColour = texture(diffuse0, texCord) * ambient;
 
 	//Adds the lighting contributions from all the lights in the scene
 	for (int i = 0; i < pointLightCount; i++) {
