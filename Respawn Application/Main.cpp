@@ -76,9 +76,9 @@ int main() {
 	shaderProgram.Activate();
 
 	//Adds lights and updates the fragment shader with the number of added lights
-	//CreateDirectionalLight(shaderProgram, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(1.0f, -1.0f, 0.0f));
+	CreateDirectionalLight(shaderProgram, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(1.0f, -1.0f, 0.0f));
 	//CreatePointLight(shaderProgram, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(-0.5f, 0.5f, -0.5f), 1.0f, 0.7f, 0.0f);
-	CreateSpotLight(shaderProgram, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
+	//CreateSpotLight(shaderProgram, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
 	glUniform1i(glGetUniformLocation(shaderProgram.ID, "pointLightCount"), pointLightCount);
 	glUniform1i(glGetUniformLocation(shaderProgram.ID, "directionalLightCount"), directionalLightCount);
 	glUniform1i(glGetUniformLocation(shaderProgram.ID, "spotLightCount"), spotLightCount);
@@ -87,10 +87,12 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	//Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 2.0f));
 
+	//Time storer for calculating delta time
 	std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
 
+	//Imports 3D models as model objects
 	Model model("models/Bunny/scene.gltf");
 
 	//Main game loop
@@ -111,6 +113,7 @@ int main() {
 		//Sets camera position and orientation
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
+		//Draws the imported 3d models
 		model.Draw(shaderProgram, camera);
 
 		//Swap the back and front buffers

@@ -20,7 +20,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot) {
 	glBindTexture(GL_TEXTURE_2D, ID);
 
 	//Interpolates new pixels when scaling (may make image a bit blurry)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	//Makes texture repeat as needed for the texture coordinates
@@ -37,6 +37,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot) {
 	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, flatColour);
 	*/
 
+	//Automatically format the texture based on the number of colour channels
 	if (numColourChannels == 4) {
 		glTexImage2D(
 			GL_TEXTURE_2D,

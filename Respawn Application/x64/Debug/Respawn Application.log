@@ -1,4 +1,20 @@
-﻿  Model.cpp
-C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(201,91): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(207,93): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+﻿  Camera.cpp
+  EBO.cpp
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Camera.cpp(80,7): warning C4804: '<=': unsafe use of type 'bool' in operation
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Camera.cpp(80,64): warning C4804: '<=': unsafe use of type 'bool' in operation
+  Main.cpp
+  Mesh.cpp
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Mesh.cpp(74,43): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+  Model.cpp
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(228,91): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(234,93): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
+  shaderClass.cpp
+  stb.cpp
+  Texture.cpp
+  VAO.cpp
+  VBO.cpp
+  Generating Code...
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(755,5): warning MSB8015: All source files are not up-to-date:  forcing a rebuild of all source files due to the contents of 'C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\x64\Debug\Respawn .04086aaf.tlog\CL.command.1.tlog' being invalid.
+  glad.c
+  LINK : C:\Users\svmis\source\repos\Respawn-Application\x64\Debug\Respawn Application.exe not found or not built by the last incremental link; performing full link
   Respawn Application.vcxproj -> C:\Users\svmis\source\repos\Respawn-Application\x64\Debug\Respawn Application.exe
