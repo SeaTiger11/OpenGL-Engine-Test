@@ -1,7 +1,8 @@
 #include "Model.h"
+#include "Cubemap.h"
 #include <chrono>
 
-const unsigned int width = 800, height = 800;
+const unsigned int cameraWidth = 800, cameraHeight = 800;
 int pointLightCount = 0;
 int directionalLightCount = 0;
 int spotLightCount = 0;
@@ -53,7 +54,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//Creating the window and then checking the process didn't fail
-	GLFWwindow* window = glfwCreateWindow(width, height, "Demo Game", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(cameraWidth, cameraHeight, "Demo Game", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Window creation failed" << std::endl;
 		glfwTerminate();
@@ -66,34 +67,37 @@ int main() {
 	gladLoadGL();
 
 	//Set OpenGL viewport
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, cameraWidth, cameraHeight);
 
-	//Default shader for meshes
-	Shader shaderProgram("default.vert", "default.frag");
+	//Generates shader objects
+	Shader defaultShader("default.vert", "default.frag");
+	Shader skyboxShader("skybox.vert", "skybox.frag");
 
 
 	//Activates main shader and updates model information
-	shaderProgram.Activate();
+	defaultShader.Activate();
 
 	//Adds lights and updates the fragment shader with the number of added lights
-	CreateDirectionalLight(shaderProgram, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(1.0f, -1.0f, 0.0f));
-	//CreatePointLight(shaderProgram, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(-0.5f, 0.5f, -0.5f), 1.0f, 0.7f, 0.0f);
-	//CreateSpotLight(shaderProgram, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
-	glUniform1i(glGetUniformLocation(shaderProgram.ID, "pointLightCount"), pointLightCount);
-	glUniform1i(glGetUniformLocation(shaderProgram.ID, "directionalLightCount"), directionalLightCount);
-	glUniform1i(glGetUniformLocation(shaderProgram.ID, "spotLightCount"), spotLightCount);
+	CreateDirectionalLight(defaultShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(1.0f, -1.0f, 0.0f));
+	//CreatePointLight(defaultShader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(-0.5f, 0.5f, -0.5f), 1.0f, 0.7f, 0.0f);
+	//CreateSpotLight(defaultShader, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
+	glUniform1i(glGetUniformLocation(defaultShader.ID, "pointLightCount"), pointLightCount);
+	glUniform1i(glGetUniformLocation(defaultShader.ID, "directionalLightCount"), directionalLightCount);
+	glUniform1i(glGetUniformLocation(defaultShader.ID, "spotLightCount"), spotLightCount);
 
 	//Enables depth buffer
 	glEnable(GL_DEPTH_TEST);
 
 	//Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 2.0f));
+	Camera camera(cameraWidth, cameraHeight, glm::vec3(0.0f, 1.0f, 2.0f));
 
 	//Time storer for calculating delta time
 	std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
 
 	//Imports 3D models as model objects
-	Model model("models/Bunny/scene.gltf");
+	Model model("models/Test/scene.gltf", 1);
+
+	Cubemap skybox("skybox", cameraWidth, cameraHeight);
 
 	//Main game loop
 	while (!glfwWindowShouldClose(window))
@@ -114,7 +118,10 @@ int main() {
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
 		//Draws the imported 3d models
-		model.Draw(shaderProgram, camera);
+		model.Draw(defaultShader, camera);
+
+		//Skybox is drawn last to improve performace as it will always fail depth checks against other objects
+		skybox.Draw(skyboxShader, camera);
 
 		//Swap the back and front buffers
 		glfwSwapBuffers(window);
@@ -124,7 +131,8 @@ int main() {
 	}
 
 	//Delete all created objects
-	shaderProgram.Delete();
+	defaultShader.Delete();
+	skyboxShader.Delete();
 
 	//Destroy window then terminate glfw
 	glfwDestroyWindow(window);

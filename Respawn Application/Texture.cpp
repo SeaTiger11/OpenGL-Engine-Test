@@ -93,7 +93,7 @@ Texture::Texture(const char* image, const char* texType, GLuint slot) {
 void Texture::TexUnit(Shader& shader, const char* uniform, GLuint unit) {
 	GLuint texUni = glGetUniformLocation(shader.ID, uniform);
 	shader.Activate();
-	glUniform1i(texUni, unit); 
+	glUniform1i(texUni, unit);
 }
 
 //Binds texture

@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <stb/stb_image.h>
+#include <glm/glm.hpp>
 
 #include "shaderClass.h"
 
@@ -12,7 +13,7 @@ class Texture {
 		GLuint ID;
 		const char* type;
 		GLuint unit;
-
+		
 		//Constructor
 		Texture(const char* image, const char* texType, GLuint slot);
 

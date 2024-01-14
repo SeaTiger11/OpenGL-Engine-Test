@@ -9,7 +9,7 @@ using json = nlohmann::json;
 class Model {
 	public:
 		//Constructor
-		Model(const char* file, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 eulerRotation = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f));
+		Model(const char* file, unsigned int startingNode);
 
 		//Draws all meshes in the imported 3d model
 		void Draw(Shader& shader, Camera& camera);
@@ -25,11 +25,6 @@ class Model {
 		std::vector<glm::quat> rotationsMeshes;
 		std::vector<glm::vec3> scalesMeshes;
 		std::vector<glm::mat4> matricesMeshes;
-
-		//The position, rotation and scale of the entire imported model
-		glm::vec3 modelPosition;
-		glm::quat modelRotation;
-		glm::vec3 modelScale;
 
 		//The textures used by the meshes
 		std::vector<std::string> loadedTexName;
@@ -49,6 +44,7 @@ class Model {
 
 		//Creates vertex objects from given data
 		std::vector<Vertex> AssembleVertices(
+			unsigned int indMes,
 			std::vector<glm::vec3> positions,
 			std::vector<glm::vec3> normals,
 			std::vector<glm::vec2> texUVs

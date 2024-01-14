@@ -6,13 +6,20 @@ in vec3 crntPos;
 //Inputs the normal from the vertex shader
 in vec3 Normal;
 //Inputs colour from the vertex shader
-in vec3 colour;
+in vec4 colour;
 //Inputs texture coordinate from the vertex shader
-in vec2 texCord;
+in vec2 texCoord;
 
 //Uniform texture variables
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
+
+//Uniform variables to check if texture is present
+uniform int diffuseMissing = 1;
+uniform int specularMissing = 1;
+
+//Local colour variables
+vec4 diffuseColour, specularColour;
 
 //Uniform cam position
 uniform vec3 camPos;
@@ -68,7 +75,7 @@ vec4 Point(PointLight pointLight) {
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(diffuse0, texCord) * diffuse * inten + texture(specular0, texCord).r * specular * inten) * pointLight.lightColour;
+	return (diffuseColour * diffuse * inten + specularColour * specular * inten) * pointLight.lightColour;
 }
 
 vec4 Directional(DirectionalLight directionalLight) {
@@ -84,7 +91,7 @@ vec4 Directional(DirectionalLight directionalLight) {
 	float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), 16);
 	float specular = specAmount * specularLight;
 
-	return (texture(diffuse0, texCord) * diffuse + texture(specular0, texCord).r * specular) * directionalLight.lightColour;
+	return (diffuseColour * diffuse + specularColour * specular) * directionalLight.lightColour;
 }
 
 vec4 Spot(SpotLight spotLight) {
@@ -104,14 +111,18 @@ vec4 Spot(SpotLight spotLight) {
 	float angle = dot(spotLight.lightDirection, -lightDirection);
 	float inten = clamp((angle - spotLight.outerCone) / (spotLight.innerCone - spotLight.outerCone), 0.0f, 1.0f);
 
-	return (texture(diffuse0, texCord) * diffuse * inten + texture(specular0, texCord).r * specular * inten) * spotLight.lightColour;
+	return (diffuseColour * diffuse * inten + specularColour * specular * inten) * spotLight.lightColour;
 } 
 
 
 void main() {
+	//Branchless vertex colour replacment for when textures aren't present
+	diffuseColour = texture(diffuse0, texCoord) + colour * diffuseMissing;
+	specularColour = texture(specular0, texCoord).r + texture(diffuse0, texCoord) * specularMissing + colour * diffuseMissing * specularMissing;
+
 	//Ambient lighting
 	float ambient = 0.2f;
-	vec4 totalColour = texture(diffuse0, texCord) * ambient;
+	vec4 totalColour = diffuseColour * ambient;
 
 	//Adds the lighting contributions from all the lights in the scene
 	for (int i = 0; i < pointLightCount; i++) {

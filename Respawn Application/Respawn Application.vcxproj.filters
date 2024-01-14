@@ -54,6 +54,9 @@
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.frag">
@@ -62,10 +65,10 @@
     <None Include="default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="light.frag">
+    <None Include="skybox.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="light.vert">
+    <None Include="skybox.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -92,6 +95,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

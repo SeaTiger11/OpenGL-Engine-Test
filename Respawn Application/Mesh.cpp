@@ -52,6 +52,12 @@ void Mesh::Draw(
 		textures[i].Bind();
 	}
 
+	shader.Activate();
+	if (numDiffuse > 0)
+		glUniform1i(glGetUniformLocation(shader.ID, "diffuseMissing"), 0);
+	if (numSpecular > 0)
+		glUniform1i(glGetUniformLocation(shader.ID, "specularMissing"), 0);
+
 	//Update camera position in fragment shader for use in specular lighting
 	glUniform3f(glGetUniformLocation(shader.ID, "camPos"), camera.position.x, camera.position.y, camera.position.z);
 	//Sends the camera matrix to the vertex shader

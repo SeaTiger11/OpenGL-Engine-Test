@@ -77,7 +77,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime) {
 		glm::vec3 newOrientation = glm::rotate(orientation, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
 
 		//Ensures the new orientation isn't overrotated (prevents backflips/frontflips with the camera) and if not, updates camera angle
-		if (!glm::angle(newOrientation, up) <= glm::radians(5.0f) || !glm::angle(newOrientation, -up) <= glm::radians(5.0f)) {
+		if (abs(glm::angle(newOrientation, up) - glm::radians(90.0f)) <= glm::radians(85.0f)) {
 			orientation = glm::rotate(newOrientation, glm::radians(-rotY), up);
 		}
 

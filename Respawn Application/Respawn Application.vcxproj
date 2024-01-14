@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
@@ -147,11 +148,12 @@
   <ItemGroup>
     <None Include="default.frag" />
     <None Include="default.vert" />
-    <None Include="light.frag" />
-    <None Include="light.vert" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Cubemap.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
