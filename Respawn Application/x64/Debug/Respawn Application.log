@@ -1,6 +1,4 @@
-﻿  Main.cpp
-  Model.cpp
-C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(232,91): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\Model.cpp(238,93): warning C4267: 'argument': conversion from 'size_t' to 'GLuint', possible loss of data
-  Generating Code...
+﻿  UI.cpp
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\UI.cpp(104,57): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
+C:\Users\svmis\source\repos\Respawn-Application\Respawn Application\UI.cpp(105,58): warning C4244: '=': conversion from 'unsigned int' to 'float', possible loss of data
   Respawn Application.vcxproj -> C:\Users\svmis\source\repos\Respawn-Application\x64\Debug\Respawn Application.exe

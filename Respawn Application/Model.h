@@ -1,6 +1,8 @@
 #ifndef MODEL_CLASS_H
 #define MODEL_CLASS_H
 
+#include "GlobalVariables.h"
+
 #include <json/json.h>
 #include "Mesh.h"
 

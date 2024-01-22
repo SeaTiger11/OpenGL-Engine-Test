@@ -1,0 +1,17 @@
+{
+	"Canvases" : [
+		{
+			"worldSpace" : false,
+			"Images" : [
+				{
+					"x" : 10,
+					"y" : 10,
+					"width" : 20,
+					"height" : 30,
+					"unitType" : 2,
+					"texture" : "planks.png"
+				}
+			]
+		}
+	]
+}

@@ -52,7 +52,6 @@ void Mesh::Draw(
 		textures[i].Bind();
 	}
 
-	shader.Activate();
 	if (numDiffuse > 0)
 		glUniform1i(glGetUniformLocation(shader.ID, "diffuseMissing"), 0);
 	if (numSpecular > 0)

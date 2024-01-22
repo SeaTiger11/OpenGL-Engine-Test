@@ -1,8 +1,13 @@
+#include "GlobalVariables.h"
+
 #include "Model.h"
 #include "Cubemap.h"
+#include "UI.h"
 #include <chrono>
 
-const unsigned int cameraWidth = 800, cameraHeight = 800;
+//Updates extern variables in the global variable header
+unsigned int cameraWidth = 800, cameraHeight = 800, textureCount = 0;
+
 int pointLightCount = 0;
 int directionalLightCount = 0;
 int spotLightCount = 0;
@@ -14,7 +19,7 @@ static void glfwError(int id, const char* description)
 }
 
 //Updates fragment shader to include an additional point light
-void CreatePointLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos, float a, float b, float c) {
+static void CreatePointLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos, float a, float b, float c) {
 	std::string prefix = "pointLights[" + std::to_string(pointLightCount++);
 
 	glUniform4f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].lightColour").c_str()), lightColour.x, lightColour.y, lightColour.z, lightColour.w);
@@ -25,7 +30,7 @@ void CreatePointLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos,
 }
 
 //Updates fragment shader to include an additional directional light
-void CreateDirectionalLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightDirection) {
+static void CreateDirectionalLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightDirection) {
 	std::string prefix = "directionalLights[" + std::to_string(directionalLightCount++);
 
 	glUniform4f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].lightColour").c_str()), lightColour.x, lightColour.y, lightColour.z, lightColour.w);
@@ -33,7 +38,7 @@ void CreateDirectionalLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lig
 }
 
 //Updates fragment shader to include an additional spot light
-void CreateSpotLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos, glm::vec3 lightDirection, float innerCone, float outerCone) {
+static void CreateSpotLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos, glm::vec3 lightDirection, float innerCone, float outerCone) {
 	std::string prefix = "spotLights[" + std::to_string(spotLightCount++);
 
 	glUniform4f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].lightColour").c_str()), lightColour.x, lightColour.y, lightColour.z, lightColour.w);
@@ -41,6 +46,17 @@ void CreateSpotLight(Shader& shader, glm::vec4 lightColour, glm::vec3 lightPos, 
 	glUniform3f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].lightDirection").c_str()), lightDirection.x, lightDirection.y, lightDirection.z);
 	glUniform1f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].innerCone").c_str()), innerCone);
 	glUniform1f(glGetUniformLocation(shader.ID, (prefix + (std::string)"].outerCone").c_str()), outerCone);
+}
+
+static std::vector<Canvas> GetUI(const char* file) {
+	std::string text = get_file_contents(file);
+	json JSON = json::parse(text);
+
+	std::vector<Canvas> canvases;
+	for (int i = 0; i < JSON["Canvases"].size(); i++) {
+		canvases.push_back(Canvas(JSON["Canvases"][i]));
+	}
+	return canvases;
 }
 
 int main() {
@@ -72,15 +88,16 @@ int main() {
 	//Generates shader objects
 	Shader defaultShader("default.vert", "default.frag");
 	Shader skyboxShader("skybox.vert", "skybox.frag");
+	Shader uiShader("ui.vert", "ui.frag");
 
 
 	//Activates main shader and updates model information
 	defaultShader.Activate();
 
 	//Adds lights and updates the fragment shader with the number of added lights
-	CreateDirectionalLight(defaultShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(1.0f, -1.0f, 0.0f));
+	CreateDirectionalLight(defaultShader, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
 	//CreatePointLight(defaultShader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(-0.5f, 0.5f, -0.5f), 1.0f, 0.7f, 0.0f);
-	//CreateSpotLight(defaultShader, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
+	CreateSpotLight(defaultShader, glm::vec4(5.0f, 5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.95f, 0.90f);
 	glUniform1i(glGetUniformLocation(defaultShader.ID, "pointLightCount"), pointLightCount);
 	glUniform1i(glGetUniformLocation(defaultShader.ID, "directionalLightCount"), directionalLightCount);
 	glUniform1i(glGetUniformLocation(defaultShader.ID, "spotLightCount"), spotLightCount);
@@ -96,8 +113,11 @@ int main() {
 
 	//Imports 3D models as model objects
 	Model model("models/Test/scene.gltf", 1);
+	Model bunny("models/Bunny/scene.gltf", 0);
 
 	Cubemap skybox("skybox", cameraWidth, cameraHeight);
+
+	std::vector<Canvas> canvases = GetUI("UI.txt");
 
 	//Main game loop
 	while (!glfwWindowShouldClose(window))
@@ -119,9 +139,14 @@ int main() {
 
 		//Draws the imported 3d models
 		model.Draw(defaultShader, camera);
+		bunny.Draw(defaultShader, camera);
 
-		//Skybox is drawn last to improve performace as it will always fail depth checks against other objects
+		//Skybox is drawn last to improve performace as it will always fail depth checks against other objects (except UI)
 		skybox.Draw(skyboxShader, camera);
+
+		for (int i = 0; i < canvases.size(); i++) {
+			//canvases[i].Draw(uiShader, cameraWidth, cameraHeight);
+		}
 
 		//Swap the back and front buffers
 		glfwSwapBuffers(window);
@@ -133,6 +158,7 @@ int main() {
 	//Delete all created objects
 	defaultShader.Delete();
 	skyboxShader.Delete();
+	uiShader.Delete();
 
 	//Destroy window then terminate glfw
 	glfwDestroyWindow(window);
