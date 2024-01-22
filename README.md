@@ -16,3 +16,16 @@ Please contact me at any time with questions or requests for anything such as vi
 
 
 (If possible, leaving my portfolio and application for last would be greatly apprecieated so that I can further the development of this project)
+
+# TEMPORARY UNTIL NEXT COMMIT
+As a progress update due to lack of commits I will summarise what's been happening due to lack of clear code updates.
+Between a few days of long hours at work (12+ hours) and a recent sickness, I've been unable to progress much on the actual code development however I've been doing research in the mean time.
+I've researched:
+-AABB
+-OBB
+-GJK + EPA
+-SAT
+-BSP Trees
+-Best practises for UI tool development
+
+Furthermore I've began reading "Real-Time Collision Detection" by Christer Ericson and planned out the flow field varient as well numerous optimisations where one of the steps can even be used for broad phase collision detection against static colliders.
