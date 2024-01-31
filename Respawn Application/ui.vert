@@ -12,5 +12,5 @@ uniform vec3 position, scale;
 void main() {
 	texCoord = mat2(0.0, -1.0, 1.0, 0.0) * aTex;
 
-	gl_Position = vec4(aPos * scale + position, 1.0);
+	gl_Position = vec4(vec3(-1.0f, 1.0f, 0.0f) + aPos * scale * 2.0f + position, 1.0f);
 }

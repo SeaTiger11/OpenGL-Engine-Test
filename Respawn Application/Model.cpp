@@ -228,6 +228,7 @@ std::vector<Texture> Model::GetTextures() {
 			}
 		}
 		if (!skip) {
+			std::cout << fileDirectory + texPath << std::endl;
 			if (texPath.find("baseColor") != std::string::npos) {
 				Texture diffuse = Texture((fileDirectory + texPath).c_str(), "diffuse", textureCount++);
 				textures.push_back(diffuse);

@@ -112,8 +112,9 @@ int main() {
 	std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
 
 	//Imports 3D models as model objects
-	Model model("models/Test/scene.gltf", 1);
-	Model bunny("models/Bunny/scene.gltf", 0);
+	//Model model("models/Test/scene.gltf", 1);
+	//Model model2("models/Test/untitled.gltf", 0);
+	//Model bunny("models/Bunny/scene.gltf", 0);
 
 	Cubemap skybox("skybox", cameraWidth, cameraHeight);
 
@@ -137,16 +138,21 @@ int main() {
 		//Sets camera position and orientation
 		camera.UpdateMatrix(45.0f, 0.1f, 100.0f);
 
+		glEnable(GL_TEXTURE_2D);
+
 		//Draws the imported 3d models
-		model.Draw(defaultShader, camera);
-		bunny.Draw(defaultShader, camera);
+		//model.Draw(defaultShader, camera);
+		//model2.Draw(defaultShader, camera);
+		//bunny.Draw(defaultShader, camera);
 
 		//Skybox is drawn last to improve performace as it will always fail depth checks against other objects (except UI)
 		skybox.Draw(skyboxShader, camera);
 
 		for (int i = 0; i < canvases.size(); i++) {
-			//canvases[i].Draw(uiShader, cameraWidth, cameraHeight);
+			canvases[i].Draw(uiShader);
 		}
+
+		glDisable(GL_TEXTURE_2D);
 
 		//Swap the back and front buffers
 		glfwSwapBuffers(window);
