@@ -1,0 +1,11 @@
+Model Information:
+* title:	Cybernetic_Arms
+* source:	https://sketchfab.com/3d-models/cybernetic-arms-57b2232ebbe94f77a89901df5eb5c7f3
+* author:	KeisukePaws (https://sketchfab.com/KeisukePaws)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Cybernetic_Arms" (https://sketchfab.com/3d-models/cybernetic-arms-57b2232ebbe94f77a89901df5eb5c7f3) by KeisukePaws (https://sketchfab.com/KeisukePaws) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
